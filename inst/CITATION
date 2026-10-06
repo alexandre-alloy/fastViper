@@ -1,0 +1,21 @@
+citHeader("Please, cite the following reference:")
+
+citEntry(entry="article",
+	author = c(person(c("Mariano","J"),"Alvarez"),
+	           person("Yao","Shen"),
+	           person(c("Federico","M"), "Giorgi"),
+	           person("Alexander","Lachmann"),
+	           person(c("B","Belinda"),"Ding"),
+	           person(c("B","Hilda"), "Ye"),
+		   person("Andrea", "Califano")),
+	title = "Functional characterization of somatic mutations in cancer using network-based inference of protein activity",
+	journal = "Nature genetics",
+	year = 2016,
+	volume = 48,
+	number = 8,
+	pages = "838--47",
+
+	textVersion = 
+	"Alvarez, M.J., Shen, Y., Giorgi, F.M., Lachmann, A., Ding, B.B., Ye, B.H., and Califano, A. (2016) Functional characterization of somatic mutations in cancer using network-based inference of protein activity. Nature genetics 48(8):848--47."
+)
+

@@ -1,0 +1,25 @@
+Package: viper
+Version: 1.46.0
+Date: 2013-04-09
+Title: Virtual Inference of Protein-activity by Enriched Regulon
+        analysis
+Author: Mariano J Alvarez <reef103@gmail.com>
+Maintainer: Mariano J Alvarez <reef103@gmail.com>
+Depends: R (>= 2.14.0), Biobase, methods
+Imports: mixtools, stats, parallel, e1071, KernSmooth, matrixStats, Matrix, codetools
+Suggests: bcellViper
+Description: Inference of protein activity from gene expression data, including
+    the VIPER and msVIPER algorithms
+License: file LICENSE
+biocViews: SystemsBiology, NetworkEnrichment, GeneExpression,
+        FunctionalPrediction, GeneRegulation
+Encoding: UTF-8
+RoxygenNote: 6.1.1
+git_url: https://git.bioconductor.org/packages/viper
+git_branch: RELEASE_3_23
+git_last_commit: b003118
+git_last_commit_date: 2026-04-28
+Repository: Bioconductor 3.23
+Date/Publication: 2026-04-28
+NeedsCompilation: no
+Packaged: 2026-04-29 01:25:05 UTC; biocbuild
