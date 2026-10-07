@@ -22,8 +22,6 @@ remotes::install_github("alexandre-alloy/fastViper")
 library(fastViper)
 ```
 
-Replace `OWNER` with the GitHub account or organization that hosts the repository. For a local checkout, use `install.packages("path/to/fastViper", repos = NULL, type = "source")`. The package's R dependencies are listed in `DESCRIPTION`; install any missing dependencies first.
-
 ## Basic use
 
 ```r
