@@ -24,35 +24,6 @@ library(fastViper)
 
 ## Basic use
 
-```r
-library(fastViper)
-
-# expr: genes in rows, samples in columns
-# regulon: a regulon object or a list of regulons
-activity <- viper(
-  eset = expr,
-  regulon = regulon,
-  method = "none",
-  enrichment.method = "aREA"
-)
-
-# Use analytic NaRnEA enrichment instead
-activity_narnea <- viper(
-  eset = expr,
-  regulon = regulon,
-  method = "none",
-  enrichment.method = "NaRnEA"
-)
-
-# Enable multiple workers (including on Windows)
-activity_parallel <- viper(
-  eset = expr,
-  regulon = regulon,
-  method = "none",
-  cores = 4
-)
-```
-
 To compute sample signatures against a reference matrix:
 
 ```r
@@ -66,6 +37,37 @@ signatures <- viperSignature(
 ```
 
 The resulting signatures can then be passed to `viper()` as the expression input. Choose `method` for `viper()` independently; for example, use `method = "none"` when the supplied input already contains the desired signatures.
+
+```r
+library(fastViper)
+
+# expr: genes in rows, samples in columns
+# regulon: a regulon object or a list of regulons
+activity <- viper(
+  eset = signatures,
+  regulon = pruneRegulon(regulon, 100, F),
+  method = "none",
+  enrichment.method = "aREA"
+)
+
+# Use analytic NaRnEA enrichment instead
+activity_narnea <- viper(
+  eset = signatures,
+  regulon = pruneRegulon(regulon, 100, F),
+  method = "none",
+  enrichment.method = "NaRnEA"
+)
+
+# Enable multiple workers (including on Windows)
+activity_parallel <- viper(
+  eset = expr,
+  regulon = regulon,
+  method = "none",
+  cores = 4
+)
+```
+
+
 
 ## Multicore behavior and memory
 
