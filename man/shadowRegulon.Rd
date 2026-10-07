@@ -5,7 +5,8 @@
 \title{Correction for pleiotropy}
 \usage{
 shadowRegulon(ss, nes, regul, regulators = 0.05, shadow = 0.05,
-  targets = 10, penalty = 2, method = c("absolute", "adaptive"))
+  targets = 10, penalty = 2, method = c("absolute", "adaptive"),
+  cores = 1)
 }
 \arguments{
 \item{ss}{Named vector containing the gene expression signature}
@@ -23,6 +24,8 @@ shadowRegulon(ss, nes, regul, regulators = 0.05, shadow = 0.05,
 \item{penalty}{Number higher than 1 indicating the penalty for the pleiotropic interactions. 1 = no penalty}
 
 \item{method}{Character string indicating the method to use for computing the pleiotropy, either absolute or adaptive}
+
+\item{cores}{Integer number of worker processes to use for independent focal-regulator calculations}
 }
 \value{
 Corrected regulon object

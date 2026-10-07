@@ -70,7 +70,7 @@ msviper <- function(ges, regulon, nullmodel=NULL, pleiotropy=FALSE, minsize=25, 
         if (cores>1) {
             nes <- .viperParallelApply(1:ncol(nes), function(i, ss, nes, regulon, args, dnull) {
                 nes <- nes[, i]
-                sreg <- shadowRegulon(ss[, i], nes, regulon, regulators=args[[1]], shadow=args[[2]], targets=args[[3]], penalty=args[[4]], method=args[[5]])
+                sreg <- shadowRegulon(ss[, i], nes, regulon, regulators=args[[1]], shadow=args[[2]], targets=args[[3]], penalty=args[[4]], method=args[[5]], cores=cores)
                 if (!is.null(sreg)) {
                     if (is.null(dnull)) tmp <- aREA(ss[, i], sreg, minsize=5, cores=1)$nes[, 1]
                     else {
@@ -87,7 +87,7 @@ msviper <- function(ges, regulon, nullmodel=NULL, pleiotropy=FALSE, minsize=25, 
             if (verbose) pb <- txtProgressBar(max=ncol(nes), style=3)
             nes <- sapply(1:ncol(nes), function(i, ss, nes, regulon, args, dnull, pb) {
                 nes <- nes[, i]
-                sreg <- shadowRegulon(ss[, i], nes, regulon, regulators=args[[1]], shadow=args[[2]], targets=args[[3]], penalty=args[[4]], method=args[[5]])
+                sreg <- shadowRegulon(ss[, i], nes, regulon, regulators=args[[1]], shadow=args[[2]], targets=args[[3]], penalty=args[[4]], method=args[[5]], cores=cores)
                 if (!is.null(sreg)) {
                     if (is.null(dnull)) tmp <-aREA(ss[, i], sreg, minsize=5)$nes[, 1]
                     else {

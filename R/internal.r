@@ -357,9 +357,39 @@ distMode <- function (x, adj = 1) {
 #' @param targets Integer indicating the minimal number of overlaping targets to consider a pair of regulators for pleiotropy analysis
 #' @param penalty Number higher than 1 indicating the penalty for the pleiotropic interactions. 1 = no penalty
 #' @param method Character string indicating the method to use for computing the pleiotropy, either absolute or adaptive
+#' @param cores Integer number of worker processes to use for independent focal-regulator calculations
 #' @return Corrected regulon object
 
-shadowRegulon <- function(ss, nes, regul, regulators=.05, shadow=.05, targets=10, penalty=2, method=c("absolute", "adaptive")) {
+.shadowRegulonSourceScores <- function(tf1, tfs, regul, overlaps, ss, nes, targets) {
+    target.names <- names(regul[[tf1]]$tfmode)
+    pos <- which(names(ss) %in% target.names)
+    s2 <- rank(ss[pos])/(length(pos)+1)*2-1
+    s1 <- abs(s2)*2-1
+    s1 <- s1+(1-max(s1))/2
+    s1 <- qnorm(s1/2+.5)
+    direction <- sign(nes[tf1])
+    if (direction==0) direction <- 1
+    s2 <- qnorm(s2/2+.5)*direction
+    others <- tfs[tfs != tf1]
+    scores <- vapply(others, function(tf2) {
+        idx <- overlaps[[tf1]][[tf2]]
+        if (length(idx)<targets) return(NA_real_)
+        tfmode <- regul[[tf1]]$tfmode[idx]
+        likelihood <- regul[[tf1]]$likelihood[idx]
+        score.pos <- match(target.names[idx], names(s1))
+        sum1 <- sum(tfmode * likelihood * s2[score.pos])
+        sign1 <- sign(sum1)
+        sign1[sign1==0] <- 1
+        sum2 <- sum((1-abs(tfmode)) * likelihood * s1[score.pos])
+        ww <- likelihood/max(likelihood)
+        score <- (abs(sum1) + sum2*(sum2>0)) / sum(likelihood) * sign1 * sqrt(sum(ww^2))
+        pnorm(score, lower.tail=FALSE)
+    }, numeric(1))
+    names(scores) <- paste(tf1, others, sep=" x ")
+    scores
+}
+
+shadowRegulon <- function(ss, nes, regul, regulators=.05, shadow=.05, targets=10, penalty=2, method=c("absolute", "adaptive"), cores=1) {
     method <- match.arg(method)
     pval <- pnorm(abs(nes), lower.tail=FALSE)*2
     if (regulators<1) tfs <- names(pval)[pval<regulators]
@@ -371,42 +401,19 @@ shadowRegulon <- function(ss, nes, regul, regulators=.05, shadow=.05, targets=10
     # to construct shadow regulons and later to apply their penalties.
     tfTargets <- lapply(tfs, function(tf) names(regul[[tf]]$tfmode))
     names(tfTargets) <- tfs
-    overlaps <- lapply(tfs, function(tf1) {
-        others <- tfs[tfs != tf1]
-        out <- lapply(others, function(tf2) which(tfTargets[[tf1]] %in% tfTargets[[tf2]]))
-        names(out) <- others
-        out
-    })
-    names(overlaps) <- tfs
-    tmp <- lapply(unique(tfs), function(tf1, tfs, regul, ss, nes, targets) {
-        reg <- lapply(tfs[tfs != tf1], function(tf2, regul, tf1) {
-            pos <- overlaps[[tf1]][[tf2]]
-            list(tfmode=regul[[tf1]]$tfmode[pos], likelihood=regul[[tf1]]$likelihood[pos])
-        }, regul=regul, tf1=tf1)
-        names(reg) <- tfs[tfs != tf1]
-        pos <- which(names(ss) %in% names(regul[[tf1]]$tfmode))
-        s2 <- rank(ss[pos])/(length(ss[pos])+1)*2-1
-        s1 <- abs(s2)*2-1
-        s1 <- s1+(1-max(s1))/2
-        s1 <- qnorm(s1/2+.5)
-        tmp <- sign(nes[tf1])
-        if (tmp==0) tmp <- 1
-        s2 <- qnorm(s2/2+.5)*tmp
-        tmp <- sapply(reg, function(x, s1, s2, targets) {
-            if (length(x$tfmode)<targets) return(NA)
-            pos <- match(names(x$tfmode), names(s1))
-            sum1 <- sum(x$tfmode * x$likelihood * s2[pos])
-            ss <- sign(sum1)
-            ss[ss==0] <- 1
-            sum2 <- sum((1-abs(x$tfmode)) * x$likelihood * s1[pos])
-            ww <- x$likelihood/max(x$likelihood)
-            return((abs(sum1) + sum2*(sum2>0)) / sum(x$likelihood) * sign(ss) * sqrt(sum(ww^2)))
-        }, s1=s1, s2=s2, targets=targets)
-        return(pnorm(tmp, lower.tail=FALSE))
-    }, tfs=tfs, regul=regul, ss=ss, nes=nes, targets=targets)
-    names(tmp) <- unique(tfs)
-    pval <- unlist(tmp, use.names=F)
-    names(pval) <- paste(rep(names(tmp), sapply(tmp, length)), unlist(lapply(tmp, names), use.names=FALSE), sep=" x ")
+      overlaps <- lapply(tfs, function(tf1) {
+          others <- tfs[tfs != tf1]
+          out <- lapply(others, function(tf2) which(!is.na(match(tfTargets[[tf1]], tfTargets[[tf2]]))))
+          names(out) <- others
+          out
+      })
+      names(overlaps) <- tfs
+      score.fun <- function(tf1, tfs, regul, overlaps, ss, nes, targets) {
+          .shadowRegulonSourceScores(tf1, tfs, regul, overlaps, ss, nes, targets)
+      }
+      tmp <- .viperParallelApply(tfs, score.fun, tfs=tfs, regul=regul, overlaps=overlaps,
+                                 ss=ss, nes=nes, targets=targets, mc.cores=cores)
+      pval <- unlist(tmp, use.names=TRUE)
     pval <- pval[!is.na(pval)]
     regind <- t(combn(tfs, 2))
     regind <- filterRowMatrix(regind, paste(regind[, 1], regind[, 2], sep=" x ") %in% names(pval))

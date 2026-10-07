@@ -1,4 +1,4 @@
-\documentclass{article}
+﻿\documentclass{article}
 \usepackage{fullpage}
 \usepackage{hyperref}
 \usepackage{authblk}
@@ -77,7 +77,7 @@ BiocManager::install("viper")
 \section{Getting started}
 As first step, we have to load the viper environment with:
 <<echo=TRUE, results=hide>>=
-library(viper)
+library(fastViper)
 @
 
 %--------

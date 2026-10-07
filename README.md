@@ -1,4 +1,4 @@
-# fastViper
+﻿# fastViper
 
 `fastViper` is a locally optimized version of the R `viper` package for inferring regulator activity from gene expression data. It keeps the package's existing VIPER and msVIPER workflows and adds performance improvements, an optional NaRnEA enrichment method, and cross-platform multicore execution. The package source directory remains named `Viper_Optimized`; `fastViper` is the project/repository name.
 
@@ -10,7 +10,7 @@ The package is based on viper 1.46.0. See [`Viper_Optimization_Change_Log.md`](V
 - **aREA enrichment:** the default enrichment method, with faster ranking and lower-overhead paths for common complete-data workloads.
 - **NaRnEA enrichment:** an optional analytic enrichment method that can be selected in `viper()` with `enrichment.method = "NaRnEA"`. With `nes = FALSE`, it returns NaRnEA's proportional enrichment scores (PES); otherwise it returns normalized enrichment scores (NES).
 - **Expression signatures:** `viperSignature()` creates signatures against a reference, including z-score, t-test, and mean modes.
-- **Other optimized paths:** rank and variance calculations use `matrixStats`; a common non-robust `viperRPT()` path uses vectorized weighted least squares; `shadowRegulon()` reuses target intersections.
+- **Other optimized paths:** rank and variance calculations use `matrixStats`; a common non-robust `viperRPT()` path uses vectorized weighted least squares; `shadowRegulon()` scores directed regulator pairs from cached overlap indices and can distribute focal regulators across workers.
 - **Optional multicore:** `cores = 1` runs serially. Values above one enable PSOCK workers on Windows and fork workers on Unix-like systems for supported independent tasks.
 
 ## Install
@@ -18,15 +18,16 @@ The package is based on viper 1.46.0. See [`Viper_Optimization_Change_Log.md`](V
 Install from a local checkout with R:
 
 ```r
-install.packages("path/to/fastViper", repos = NULL, type = "source")
+remotes::install_github("OWNER/fastViper")
+library(fastViper)
 ```
 
-The package's R dependencies are listed in `DESCRIPTION`. On Windows, install any missing dependencies before installing the local source package.
+Replace `OWNER` with the GitHub account or organization that hosts the repository. For a local checkout, use `install.packages("path/to/fastViper", repos = NULL, type = "source")`. The package's R dependencies are listed in `DESCRIPTION`; install any missing dependencies first.
 
 ## Basic use
 
 ```r
-library(viper)
+library(fastViper)
 
 # expr: genes in rows, samples in columns
 # regulon: a regulon object or a list of regulons
@@ -84,7 +85,7 @@ This is an estimate of input copies, not a cap on total R process memory. Output
 
 ## Validation
 
-The local change log records comparisons against the unmodified viper 1.46.0 source, including matching outputs for optimized calculations, NaRnEA comparisons against the upstream implementation, and Windows PSOCK checks against serial results. These checks cover targeted synthetic workloads and selected package workflows. A complete 1,080-patient analysis was run serially for performance evaluation; that full workflow has not been benchmarked with multiple workers.
+The local change log records comparisons against the unmodified viper 1.46.0 source, including matching outputs for optimized calculations, NaRnEA comparisons against the upstream implementation, and Windows PSOCK checks against serial results. A 30-patient, 100-regulator `shadowRegulon()` benchmark matched exactly, with a 1.18x serial speedup and 1.96x speedup using four workers. A larger 120-patient, 187-regulator run was 12.75x faster with 32 workers, again with identical outputs; sampled aggregate R-process memory peaked at 13.71 GiB. These checks cover targeted synthetic workloads and selected package workflows. A complete 1,080-patient analysis was run serially for performance evaluation; that full workflow has not been benchmarked with multiple workers.
 
 ## License and attribution
 

@@ -1,9 +1,10 @@
-Package: viper
+﻿Package: fastViper
 Version: 1.46.0
 Date: 2013-04-09
 Title: Virtual Inference of Protein-activity by Enriched Regulon
         analysis
-Author: Mariano J Alvarez <reef103@gmail.com>
+Author: Mariano J Alvarez [aut, cre], Alexandre P Alloy [aut]
+Authors@R: c(person("Mariano J Alvarez", email="reef103@gmail.com", role=c("aut", "cre")), person("Alexandre P", "Alloy", role="aut"))
 Maintainer: Mariano J Alvarez <reef103@gmail.com>
 Depends: R (>= 2.14.0), Biobase, methods
 Imports: mixtools, stats, parallel, e1071, KernSmooth, matrixStats, Matrix, codetools
