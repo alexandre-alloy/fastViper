@@ -18,7 +18,7 @@ The package is based on viper 1.46.0. See [`Viper_Optimization_Change_Log.md`](V
 Install from a local checkout with R:
 
 ```r
-remotes::install_github("OWNER/fastViper")
+remotes::install_github("alexandre-alloy/fastViper")
 library(fastViper)
 ```
 
