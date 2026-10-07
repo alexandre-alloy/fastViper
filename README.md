@@ -1,4 +1,4 @@
-﻿# fastViper
+# fastViper
 
 `fastViper` is a locally optimized version of the R `viper` package for inferring regulator activity from gene expression data. It keeps the package's existing VIPER and msVIPER workflows and adds performance improvements, an optional NaRnEA enrichment method, and cross-platform multicore execution. The package source directory remains named `Viper_Optimized`; `fastViper` is the project/repository name.
 
@@ -18,11 +18,42 @@ The package is based on viper 1.46.0. See [`Viper_Optimization_Change_Log.md`](V
 Install from a local checkout with R:
 
 ```r
-remotes::install_github("alexandre-alloy/fastViper")
+remotes::install_github("OWNER/fastViper")
 library(fastViper)
 ```
 
+Replace `OWNER` with the GitHub account or organization that hosts the repository. For a local checkout, use `install.packages("path/to/fastViper", repos = NULL, type = "source")`. The package's R dependencies are listed in `DESCRIPTION`; install any missing dependencies first.
+
 ## Basic use
+
+```r
+library(fastViper)
+
+# expr: genes in rows, samples in columns
+# regulon: a regulon object or a list of regulons
+activity <- viper(
+  eset = expr,
+  regulon = regulon,
+  method = "none",
+  enrichment.method = "aREA"
+)
+
+# Use analytic NaRnEA enrichment instead
+activity_narnea <- viper(
+  eset = expr,
+  regulon = regulon,
+  method = "none",
+  enrichment.method = "NaRnEA"
+)
+
+# Enable multiple workers (including on Windows)
+activity_parallel <- viper(
+  eset = expr,
+  regulon = regulon,
+  method = "none",
+  cores = 4
+)
+```
 
 To compute sample signatures against a reference matrix:
 
@@ -37,37 +68,6 @@ signatures <- viperSignature(
 ```
 
 The resulting signatures can then be passed to `viper()` as the expression input. Choose `method` for `viper()` independently; for example, use `method = "none"` when the supplied input already contains the desired signatures.
-
-```r
-library(fastViper)
-
-# expr: genes in rows, samples in columns
-# regulon: a regulon object or a list of regulons
-activity <- viper(
-  eset = signatures,
-  regulon = pruneRegulon(regulon, 100, F),
-  method = "none",
-  enrichment.method = "aREA"
-)
-
-# Use analytic NaRnEA enrichment instead
-activity_narnea <- viper(
-  eset = signatures,
-  regulon = pruneRegulon(regulon, 100, F),
-  method = "none",
-  enrichment.method = "NaRnEA"
-)
-
-# Enable multiple workers (including on Windows)
-activity_parallel <- viper(
-  eset = expr,
-  regulon = regulon,
-  method = "none",
-  cores = 4
-)
-```
-
-
 
 ## Multicore behavior and memory
 

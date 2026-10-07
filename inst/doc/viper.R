@@ -1,4 +1,4 @@
-﻿### R code from vignette source 'viper.Rnw'
+### R code from vignette source 'viper.Rnw'
 
 ###################################################
 ### code chunk number 1: viper.Rnw:68-73 (eval = FALSE)
